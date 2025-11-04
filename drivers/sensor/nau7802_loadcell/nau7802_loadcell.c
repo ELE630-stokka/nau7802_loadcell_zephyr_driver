@@ -299,7 +299,7 @@ static int nau7802_IntCalibration(const struct nau7802_loadcell_config *config,
 {
 	int ret;
 
-	if (calibrationMode == NULL) {
+	if (calibrationMode < 0) {
 		LOG_ERR("Calibration mode couldn't be NULL");
 		return -ENOTSUP;
 	}
@@ -323,7 +323,7 @@ static int nau7802_IntCalibration(const struct nau7802_loadcell_config *config,
 	/* Poll the CALS bit until it became 0*/
 	uint8_t ctrl2_val;
 	ret = i2c_reg_read_byte_dt(&config->bus, NAU7802_CTRL2, &ctrl2_val);
-	while ((ctrl2_val & NAU7802_MASK_CTRL2_CALS != 0) && (ret == 0)) {
+	while (((ctrl2_val & NAU7802_MASK_CTRL2_CALS) != 0) && (ret == 0)) {
 		k_sleep(K_MSEC(10));
 		ret = i2c_reg_read_byte_dt(&config->bus, NAU7802_CTRL2, &ctrl2_val);
 	}
@@ -334,7 +334,7 @@ static int nau7802_IntCalibration(const struct nau7802_loadcell_config *config,
 	LOG_DBG("Internal Calibration done");
 
 	/* Check the CAL_ERR bit in CTRL2 to see if the calibration is successful*/
-	if (ctrl2_val & NAU7802_MASK_CTRL2_CAL_ERR != 0) {
+	if ((ctrl2_val & NAU7802_MASK_CTRL2_CAL_ERR) != 0) {
 		LOG_ERR("Calibration failed.");
 		return -EIO;
 	}
@@ -426,7 +426,7 @@ static int nau7802_loadcell_init(const struct device *dev)
 {
 	const struct nau7802_loadcell_config *const config = dev->config;
 	struct nau7802_loadcell_data *data = dev->data;
-	int ret;
+	int ret = 0;
 
 	/* Check if the i2c bus is ready*/
 	if (!device_is_ready(config->bus.bus)) {
@@ -454,7 +454,7 @@ static int nau7802_loadcell_init(const struct device *dev)
 	// Do I need to do this?
 
 	/* Set the LDO*/
-	ret = nau7802_setLDO(config, NAU7802_3V0);
+	ret = nau7802_setLDO(config, NAU7802_3V3);
 	if (ret != 0) {
 		LOG_ERR("ret:%d, SetLDO process failed", ret);
 		return ret;
