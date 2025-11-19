@@ -178,9 +178,14 @@ struct nau7802_loadcell_config {
 
 #ifdef CONFIG_NAU7802_LOADCELL_TRIGGER
 int nau7802_loadcell_trigger_set(const struct device *dev, const struct sensor_trigger *trig,
-				 sensor_trigger_handler_t handler);
+                 sensor_trigger_handler_t handler);
 
 int nau7802_loadcell_init_interrupt(const struct device *dev);
 #endif
+
+/* Set internal LDO voltage at runtime.
+ * Use NAU7802_EXTERNAL to disable the internal LDO, or a NAU7802_LDOVoltage value to enable.
+ */
+int nau7802_loadcell_set_ldo(const struct device *dev, NAU7802_LDOVoltage voltage);
 
 #endif
