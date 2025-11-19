@@ -547,3 +547,16 @@ static int nau7802_loadcell_init(const struct device *dev)
 				     CONFIG_SENSOR_INIT_PRIORITY, &nau7802_loadcell_api);
 
 DT_INST_FOREACH_STATUS_OKAY(CREATE_NAU7802_LOADCELL_INST)
+
+/* Runtime wrapper to control internal LDO */
+int nau7802_loadcell_set_ldo(const struct device *dev, NAU7802_LDOVoltage voltage)
+{
+    if (dev == NULL) {
+        return -EINVAL;
+    }
+
+    const struct nau7802_loadcell_config *config = dev->config;
+
+    /* Call internal helper that performs the I2C register updates */
+    return nau7802_setLDO(config, voltage);
+}
